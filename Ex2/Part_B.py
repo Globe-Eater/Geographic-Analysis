@@ -63,6 +63,7 @@ dataset_map = {
     }
 
 final = pd.DataFrame(presentation)
+final.to_excel('Tabel 4.xlsx')
 map_data = pd.DataFrame(dataset_map)
 
 # map each month speerately
@@ -76,6 +77,7 @@ ax = august_map_data.plot.scatter(x="X", y='Y', color='white', marker='o', facec
 august.plot.scatter(x='X', y='Y', color='blue', facecolor='', edgecolor='b', label='Sold_Homes_August', ax=ax)
 august_map_data.plot(ax=ax, x="X", y='Y', color='red', marker='X', label='Centroid')
 ax.axis('off')
+
 
 # october
 ax = october_map_data.plot.scatter(x="X", y='Y', color='white', marker='o', facecolors='', edgecolors='r', s=october_std_dist)

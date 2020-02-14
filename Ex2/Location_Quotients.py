@@ -37,8 +37,16 @@ canadiate['LQ2'] = ((canadiate['Total']/canadiate['Edmondson (D)'])/(canadiate['
 votes = votes[['County', 'Republican', 'Total', 'LQ1']]
 canadiate = canadiate[['County', 'Edmondson (D)', 'Total', 'LQ2']]
 
-votes.to_excel('Bullock_2.xlsx')
+votes = votes.rename(columns={'Total': 'Total Registered Voters'})
+votes['Total Governor Votes'] = ''
+votes['Total Governor Votes'] = canadiate['Total']
+votes['Edmondson (D)'] = ''
+votes['LQ2'] = ''
+votes['LQ2'] = canadiate['LQ2']
+votes['Edmondson (D)'] = canadiate['Edmondson (D)'] 
 canadiate.to_excel('Edmondson.xlsx')
+# Save out file
+votes.to_excel('Bullock_2.xlsx')
 
 # Mapping section:
 oklahoma = gpd.read_file('/Users/kellenbullock/Documents/Gradschool/Geographic Analysis/Exercise 1/Mappin/COUNTY_BOUNDARY.shp')
@@ -54,7 +62,7 @@ oklahoma = oklahoma.join(data, lsuffix='COUNTY_NAM', rsuffix='COUNTY_NAM')
 fig, ax = plt.subplots(1, 1)
 ax.axis('off')
 ax.set_title('Location quotients for Republican ', fontdict={"fontsize": 14, "fontweight" : 3})
-oklahoma.plot(column='LQ1', ax=ax, scheme='equalinterval', k=5, legend=True, legend_kwds={'loc': 'lower left'})
+oklahoma.plot(column='LQ1', ax=ax, scheme='naturalbreaks', k=4, legend=True, legend_kwds={'loc': 'lower left'})
 
 # LQ2
 fig2, ax2 = plt.subplots(1, 1)

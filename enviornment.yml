@@ -1,0 +1,11 @@
+name: stats
+dependencies:
+ - python=3.6
+ - statsmodels
+ - matplotlib
+ - scikit-learn
+ - seaborn
+ - scipy
+ - numpy
+ - pandas
+ - geopandas
