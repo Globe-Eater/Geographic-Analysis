@@ -4,47 +4,63 @@
 Created on Wed Jan 22 14:34:09 2020
 @author: kellenbullock
 """
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
+from PyPDF2 import PdfFileMerger
 import seaborn as sns
 import statsmodels.api as sm
 from scipy import stats
 
-# Left off with saving figures out to pdf. Thinking I need to create a new figure 
-# Every iteration and save that iteration out to the file... 
+def merge_pdfs():
+    # Concat all figures:
+    x = [a for a in os.listdir() if a.endswith(".pdf")]
+    print(x)
+    merger = PdfFileMerger()
+    for pdf in x:
+        merger.append(open(pdf, 'rb'))
+    with open("Bullock_1.pdf", "wb") as fout:
+        merger.write(fout)
+    print('Done.')
 
 def figures(assigned_var, scale):
     '''This method takes a dataframe as input and outputs all the required
-    histograms, boxplots, scatter plots, and qq-plots for Exericse 1'''
-    pdf = PdfPages('Bullock_3.pdf')
+    histograms, boxplots, scatter plots, and qq-plots for Exericse 1
+    Inputs:
+        assigned_var = input variables a list of pandas series
+        scale = County, Tracts, or School District. Must be a String.
+        path = destination/for/save/location
+        
+    Returns:
+        All graphs to plot panel in Spyder.
+        Saves all graphs to pdfs. 
+        
+    Usage figures(var_t, 'Tracts', Ex3/Graphs/)
+    '''
     # Histograms
     plt.clf()
     for columns in assigned_var:
         ax1 = sns.distplot(assigned_var[columns]).set(ylabel="Frequency", title=columns + " " + scale)
+        plt.savefig(columns +  '' + scale + '_hist.pdf')
         plt.show()
-        pdf.savefig(ax1)    
     # Boxplots
     for columns in assigned_var:
         ax2 = sns.boxplot(data=assigned_var[columns]).set_title(columns + " " + scale)
         #ax2 = sns.swarmplot(data=assigned_var[columns], color="Black").set_title(columns)
+        plt.savefig(columns + '' + scale + '_boxplot.pdf')
         plt.show()
-        pdf.savefig(ax2)
-        
     # Scatterplots
     for columns in assigned_var:
         ax3 = sns.scatterplot(data=assigned_var[columns]).set_title(columns + " " + scale)
+        plt.savefig(columns + '' + scale + '_scatterplot.pdf')
         plt.show()
-        pdf.savefig(ax3)
-    
     # QQ plots
     for columns in assigned_var:
         fig = sm.qqplot(assigned_var[columns], line='r')
         fig.suptitle(columns + " " + scale, fontsize=14)
+        plt.savefig(columns + '' + scale + '_qqplot.pdf')
         fig.show()
-        pdf.save(fig)
-    pdf.close()
-    print('Done.')
+    print('Done')
     
        
 def Descrptives(scale, assigned_var):
@@ -86,6 +102,7 @@ def main():
     figures(assigned_var_c, 'Counties')
     figures(assigned_var_t, 'Tracts')
     figures(assigned_var_s, 'School Districts')
+    merge_pdfs()
     Descrptives(Counties, assigned_var_c)
     print("                   ")
     print('__________Tracts__________')
