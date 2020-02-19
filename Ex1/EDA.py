@@ -6,37 +6,46 @@ Created on Wed Jan 22 14:34:09 2020
 """
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 import statsmodels.api as sm
 from scipy import stats
 
+# Left off with saving figures out to pdf. Thinking I need to create a new figure 
+# Every iteration and save that iteration out to the file... 
+
 def figures(assigned_var, scale):
     '''This method takes a dataframe as input and outputs all the required
     histograms, boxplots, scatter plots, and qq-plots for Exericse 1'''
+    pdf = PdfPages('Bullock_3.pdf')
     # Histograms
     plt.clf()
     for columns in assigned_var:
         ax1 = sns.distplot(assigned_var[columns]).set(ylabel="Frequency", title=columns + " " + scale)
         plt.show()
-        
+        pdf.savefig(ax1)    
     # Boxplots
     for columns in assigned_var:
         ax2 = sns.boxplot(data=assigned_var[columns]).set_title(columns + " " + scale)
         #ax2 = sns.swarmplot(data=assigned_var[columns], color="Black").set_title(columns)
         plt.show()
+        pdf.savefig(ax2)
         
     # Scatterplots
     for columns in assigned_var:
         ax3 = sns.scatterplot(data=assigned_var[columns]).set_title(columns + " " + scale)
         plt.show()
+        pdf.savefig(ax3)
     
     # QQ plots
     for columns in assigned_var:
         fig = sm.qqplot(assigned_var[columns], line='r')
         fig.suptitle(columns + " " + scale, fontsize=14)
         fig.show()
+        pdf.save(fig)
+    pdf.close()
     print('Done.')
- 
+    
        
 def Descrptives(scale, assigned_var):
     '''This method will provide measures of central tendency and distribution with
