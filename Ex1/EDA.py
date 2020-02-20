@@ -13,13 +13,15 @@ import statsmodels.api as sm
 from scipy import stats
 
 def merge_pdfs():
-    # Concat all figures:
+    '''When called will gather all .pdfs and combine them as one file.
+    Users should change the file name.'''
+    filename = input("Please input fileanme, ex Lastname_Exercise#: ")
     x = [a for a in os.listdir() if a.endswith(".pdf")]
     print(x)
     merger = PdfFileMerger()
     for pdf in x:
         merger.append(open(pdf, 'rb'))
-    with open("Bullock_1.pdf", "wb") as fout:
+    with open(filename + ".pdf", "wb") as fout:
         merger.write(fout)
     print('Done.')
 
@@ -66,7 +68,17 @@ def figures(assigned_var, scale):
 def Descrptives(scale, assigned_var):
     '''This method will provide measures of central tendency and distribution with
     the input of a dataframe.'''
-    # Descrptives: I need varience, coeffection of varience, skewness and kurtosis 
+    # Descrptives: I need varience, coeffection of varience, skewness and kurtosis
+    table = {
+        column : '',
+        'Skewness: ': scale[columns].skew(),
+        'Kurtosis: ': scale[columns].kurtosis(),
+        'Variance: ': scale[columns].var(),
+        'Shaprio Wilks: ': stats.shapiro(scale[columns]),
+        'Kolmogorov-Smirnov test: ': stats.kstest(scale[columns], 'norm'),
+        'Descriptives': scale[columns].describe()
+        }
+    table_list = []
     for columns in assigned_var:
         print(columns)
         print('Skewness: ', scale[columns].skew())
