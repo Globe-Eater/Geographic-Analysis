@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileMerger
+from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 import statsmodels.api as sm
 from scipy import stats
@@ -69,26 +70,41 @@ def Descrptives(scale, assigned_var):
     '''This method will provide measures of central tendency and distribution with
     the input of a dataframe.'''
     # Descrptives: I need varience, coeffection of varience, skewness and kurtosis
-    table = {
-        column : '',
-        'Skewness: ': scale[columns].skew(),
-        'Kurtosis: ': scale[columns].kurtosis(),
-        'Variance: ': scale[columns].var(),
-        'Shaprio Wilks: ': stats.shapiro(scale[columns]),
-        'Kolmogorov-Smirnov test: ': stats.kstest(scale[columns], 'norm'),
-        'Descriptives': scale[columns].describe()
-        }
     table_list = []
     for columns in assigned_var:
-        print(columns)
-        print('Skewness: ', scale[columns].skew())
-        print('Kurtosis: ', scale[columns].kurtosis())
-        print('Variance: ', scale[columns].var())
-        print('Shaprio Wilks test: ', stats.shapiro(scale[columns]))
-        print('Kolmogorov-Smirnov test: ', stats.kstest(scale[columns], 'norm'))
-        print(scale[columns].describe())
-        print("***************************")
- 
+        table = {
+            columns : '',
+            'Skewness: ': scale[columns].skew(),
+            'Kurtosis: ': scale[columns].kurtosis(),
+            'Variance: ': scale[columns].var(),
+            'Shaprio Wilks: ': stats.shapiro(scale[columns]),
+            'Kolmogorov-Smirnov test: ': stats.kstest(scale[columns], 'norm'),
+            'Mean: ': scale[columns].mean(),
+            'Standard Deviation: ': scale[columns].std(),
+            
+        }
+        print(table)
+        print('')
+        #print(columns)
+        #print('Skewness: ', scale[columns].skew())
+        #print('Kurtosis: ', scale[columns].kurtosis())
+        #print('Variance: ', scale[columns].var())
+        #print('Shaprio Wilks test: ', stats.shapiro(scale[columns]))
+        #print('Kolmogorov-Smirnov test: ', stats.kstest(scale[columns], 'norm'))
+        #print(scale[columns].describe())
+        #print("***************************")
+        table_list.append(table)
+    for tables in table_list:
+        df = pd.DataFrame(tables)
+        fig, ax =plt.subplots()
+        ax.axis('tight')
+        ax.axis('off')
+        the_table = ax.table(cellText=df.values,colLabels=df.columns,loc='center')
+        key = list(tables.keys())[0]
+        pp = PdfPages(filename=key + "_table.pdf")
+        pp.savefig(fig, bbox_inches='tight')
+        pp.close()
+        
 def main():
     path = '/users/kellenbullock/desktop/Geographic Analysis II/Data/'
     
@@ -114,7 +130,7 @@ def main():
     figures(assigned_var_c, 'Counties')
     figures(assigned_var_t, 'Tracts')
     figures(assigned_var_s, 'School Districts')
-    merge_pdfs()
+    
     Descrptives(Counties, assigned_var_c)
     print("                   ")
     print('__________Tracts__________')
@@ -122,6 +138,7 @@ def main():
     print("                   ")
     print('__________Schools__________')
     Descrptives(Schools, assigned_var_s)       
+    merge_pdfs()
     
     
     select = state[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Scale', 'Region']]
