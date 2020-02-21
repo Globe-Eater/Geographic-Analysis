@@ -108,15 +108,17 @@ var_t = var_t.drop(columns=['index'])
 var_s = var_s.drop(columns=['index'])
 
 EDA.figures(var_c, 'Counties')
-# EDA.figures(var_s, 'Schools')
-# EDA.figures(var_t, 'Tracts')
+EDA.figures(var_t, 'Tracts')
+EDA.figures(var_s, 'Schools')
 
+print('=====County=======')
 EDA.Descrptives(Counties, var_c)
-print('====== School Districts =======')
-# EDA.Descrptives(Schools, var_s)
 print('======== Tracts =========')
-# EDA.Descrptives(Tracts, var_t)
+EDA.Descrptives(Tracts, var_t)
+print('====== School Districts =======')
+EDA.Descrptives(Schools, var_s)
 
+EDA.merge_pdfs()
 #stats.pearsonr(x, y)
 
 # This will make a pearson's r correlation matrix at the County scale
@@ -124,7 +126,7 @@ print('======== Tracts =========')
 corr = assigned_var_c.corr()
 corr.style.background_gradient(cmap='coolwarm')
 
-
+#EDA.merge_pdfs()
 
 
 # if __name__ == '__main__':
