@@ -83,7 +83,13 @@ def Descrptives(scale, assigned_var):
             'Standard Deviation: ': scale[columns].std(),
             
         }
-        print(table)
+        print(columns)
+        print('Skewness: ', scale[columns].skew())
+        print('Kurtosis: ', scale[columns].kurtosis())
+        print('Variance: ', scale[columns].var(),)
+        print('Shaprio Wilks: ', stats.shapiro(scale[columns]))
+        print('Kolmogorov-Smirnov test: ', stats.kstest(scale[columns], 'norm'))
+        print('Descprtives', scale[columns].describe())
         print('')
         table_list.append(table)
     for tables in table_list:
