@@ -25,6 +25,26 @@ def merge_pdfs():
     with open(filename + ".pdf", "wb") as fout:
         merger.write(fout)
     print('Done.')
+    
+def df_to_pdf(df, path):
+    '''This method will saveout a dataframe to a pdf file.
+    
+    inputs;
+        df = pandas dataframe
+        pathname = path/to/destination
+    returns:
+        a named pdf
+    
+    Usage:
+        df_to_pdf(Oklahoma, "/Users/you/Geographic Analysis/Correlation")
+    '''
+    fig, ax = plt.subplots()
+    ax.axis('tight')
+    ax.axis('off')
+    the_table = ax.table(cellText=df.values,colLabels=df.columns,loc='center')
+    pp = PdfPages(filename=path + "_table.pdf")
+    pp.savefig(fig, bbox_inches='tight')
+    pp.close()
 
 def figures(assigned_var, scale):
     '''This method takes a dataframe as input and outputs all the required
@@ -94,7 +114,7 @@ def Descrptives(scale, assigned_var):
         table_list.append(table)
     for tables in table_list:
         df = pd.DataFrame(tables)
-        fig, ax =plt.subplots()
+        fig, ax = plt.subplots()
         ax.axis('tight')
         ax.axis('off')
         the_table = ax.table(cellText=df.values,colLabels=df.columns,loc='center')
