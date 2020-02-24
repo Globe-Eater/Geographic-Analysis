@@ -13,54 +13,7 @@ import statsmodels.api as sm
 import sys
 sys.path.append('/Users/kellenbullock/desktop/Geographic Analysis II/Ex1')
 import EDA
-
-def log_trans(df, column):
-    '''This method takes in a dataframe series and applys the log base 10
-    transformation. 
-    This method will print out a Shprio Wilks and Kolmogorov-Smirnov test 
-    statstics.
-    
-    inputs:
-        df is the name of the DataFrame
-        column is the name of the column within the DataFrame to be used.  
-            column must be a string.
-    
-    returns:
-        transformated pandas series or array
-        2 print lines of normality tests
-        
-    Usage:
-        log_transformation(Monsters['Rabbits'])
-        
-    '''
-    df = np.log10(df[column])
-    sm.qqplot(df, line='r')
-    print('Shaprio Wilks test: ', stats.shapiro(df))
-    print('Kolmogorov-Smirnov: ', stats.kstest(df, 'norm'))
-    print("")
-    return df
-        
-def sqrt_trans(df, column):
-    ''' This method takes the input of a dataframe name and a column name.
-    This will return a square root transformation of the input series.
-    
-    inputs:
-        df = the name of the pandas Dataframe
-        column = the name of the series or column.
-        
-    returns:
-        A qq plot of result of the transformation.
-        2 print statements of Shaprio Wilks and Kolmogorov-Smirnov tests.
-        The newly transformed series.
-        
-    Usage:
-        Monsters['Rabbit'] = sqrt_trans(Monsters, 'Rabbit')'''
-    df = np.sqrt(df[column])
-    sm.qqplot(df, line='r')
-    print('Shaprio Wilks test: ', stats.shapiro(df))
-    print('Kolmogorov-Smirnov: ', stats.kstest(df, 'norm'))
-    print("")
-    return df
+from Transformations import test_trans
 
 def bivar_regres(independent, dependent):
     '''This method is for doing bivartie regression. In other words it only regresses
@@ -88,7 +41,6 @@ Tracts = state.query("Scale == 'Tracts'")
 
 # Old varaibles:
 assigned_var_c = Counties[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-assigned_c_repub = Counties[['Pct_Repub', 'Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
 assigned_var_s = Schools[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty']]
 assigned_var_t = Tracts[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty']]
 
@@ -107,24 +59,52 @@ var_s = var_s.reset_index()
 var_t = var_t.drop(columns=['index'])
 var_s = var_s.drop(columns=['index'])
 
-EDA.figures(var_c, 'Counties')
-EDA.figures(var_t, 'Tracts')
-EDA.figures(var_s, 'Schools')
+# 1.
+#EDA.figures(var_c, 'Counties')
+#EDA.figures(var_t, 'Tracts')
+#EDA.figures(var_s, 'Schools')
 
 print('=====County=======')
-EDA.Descrptives(Counties, var_c)
+#EDA.Descrptives(Counties, var_c)
 print('======== Tracts =========')
-EDA.Descrptives(Tracts, var_t)
+#EDA.Descrptives(Tracts, var_t)
 print('====== School Districts =======')
-EDA.Descrptives(Schools, var_s)
+#EDA.Descrptives(Schools, var_s)
 
-EDA.merge_pdfs()
-#stats.pearsonr(x, y)
+# 1 part b:
+test_trans(assigned_var_c, 'Pct_Black')
+print('************')
+test_trans(assigned_var_c, 'Pct_Hispanic')
+
+# 3. 
+assigned_c_repub = Counties[['Pct_Repub', 'Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+assigned_c_repub = assigned_c_repub.reset_index()
+assigned_c_repub = assigned_c_repub.drop(columns=['index'])
 
 # This will make a pearson's r correlation matrix at the County scale
 # These do not work in the spyder IDE. Please see the jupyter notebook for outputs.
 corr = assigned_var_c.corr()
-corr.style.background_gradient(cmap='coolwarm')
+corr.style.background_gradient(cmap='coolwarm').set_precision(3)
+
+corr2 = assigned_c_repub.corr()
+corr2.style.background_gradient(cmap='coolwarm').set_precision(3)
+
+EDA.df_to_pdf(corr, 'Matrix_1')
+EDA.df_to_pdf(corr2, 'Matrix_2')
+
+''' Easy way to order Correlations but without signs:
+    correlations = assigned_var_c.corr().abs()
+    stack = correlations.unstack()
+    stack_order = s.sort_values(kind='quicksort')
+'''
+# 2. a. 8 strongest Person's correaltions
+corr_table = {
+    'Variables': ['Pct_Poverty / Pct_SNAP', 'Pct_Unemp / Pct_SNAP', 'Pct_White / Pct_Unemp', 'Pct_White / Pct_SNAP', 'Pct_Unemp / Pct_Poverty', 'Pct_White / Pct_Two_Plus', 'Pct_White / Pct_Poverty', 'Pct_Fire_I / Pct_BlueCollar_O'],
+    'Correlation': [0.757, 0.722, - 0.672, - 0.645, 0.605, - 0.599, - 0.593, - 0.574]
+    }
+
+pearson_r_table = pd.DataFrame(corr_table)
+EDA.df_to_pdf(pearson_r_table, 'Decending_corr')
 
 #EDA.merge_pdfs()
 
