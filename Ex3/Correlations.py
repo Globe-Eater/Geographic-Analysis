@@ -47,7 +47,7 @@ def bivar_regres(dependent, independent):
         A statsmodels regression table to the console and
         saves it out to a pdf file.'''
     
-    mod = sm.OLS(independent, dependent)
+    mod = sm.OLS(dependent, independent)
     res = mod.fit()
     res_sum = res.summary()
 
@@ -77,118 +77,139 @@ def bivar_regres(dependent, independent):
     EDA.df_to_pdf(df, path=independent.name + ' regression')
     print(independent.name + ' regression')
     
-
-#def main():
-state = pd.read_spss('/Users/kellenbullock/Desktop/Geographic Analysis II/Data/5303_EX_A.sav')
-
-Counties = state.query("Scale == 'Counties'")
-Schools = state.query("Scale == 'Schools'")
-Tracts = state.query("Scale == 'Tracts'")
-
-
-assigned_var_c = Counties[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-assigned_var_s = Schools[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-assigned_var_t = Tracts[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-
-assigned_var_t = assigned_var_t.reset_index()
-assigned_var_s = assigned_var_s.reset_index()
-assigned_var_s = assigned_var_s.drop(columns=['index'])
-assigned_var_t = assigned_var_t.drop(columns=['index'])
-
-# New Variables 
-var_c = Counties[['Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-var_s = Schools[['Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-var_t = Tracts[['Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-
-var_t = var_t.reset_index()
-var_s = var_s.reset_index()
-var_t = var_t.drop(columns=['index'])
-var_s = var_s.drop(columns=['index'])
-
-# 1.
-#EDA.figures(var_c, 'Counties')
-#EDA.figures(var_t, 'Tracts')
-#EDA.figures(var_s, 'Schools')
-
-print('=====County=======')
-#EDA.Descrptives(Counties, var_c)
-print('======== Tracts =========')
-#EDA.Descrptives(Tracts, var_t)
-print('====== School Districts =======')
-#EDA.Descrptives(Schools, var_s)
-
-# 1 part b:
-#test_trans(assigned_var_c, 'Pct_Black')
-print('************')
-#test_trans(assigned_var_c, 'Pct_Hispanic')
-
-# 2,
-# This will make a pearson's r correlation matrix at the County scale
-# These do not work in the spyder IDE. Please see the jupyter notebook for outputs.
-corr = assigned_var_c.corr()
-corr.style.background_gradient(cmap='coolwarm').set_precision(3)
-
-EDA.df_to_pdf(corr, 'Matrix_1')
-
-''' Easy way to order Correlations but without signs:
-    correlations = assigned_var_c.corr().abs()
+def unstack_corr(df):
+    '''This method will unstack a correlation matrix to make it a little easier to read.
+    
+    inputs:
+        df = a correlation dataframe.
+        
+    outputs:
+        a dataframe that is only 2 columns unstacked sorted.
+        
+    usage:
+        unstacked = unstack_corr(df)
+    
+    '''
+    
+    correlations = df.corr().abs()
     stack = correlations.unstack()
-    stack_order = s.sort_values(kind='quicksort')
-'''
-# 2. a. 8 strongest Person's correaltions. There was no easy way to do this I had to pull everythong by hand.
-corr_table = {
-    'Variables': ['Pct_Poverty / Pct_SNAP', 'Pct_Unemp / Pct_SNAP', 'Pct_White / Pct_Unemp', 'Pct_White / Pct_SNAP', 'Pct_Unemp / Pct_Poverty', 'Pct_White / Pct_Two_Plus', 'Pct_White / Pct_Poverty', 'Pct_Fire_I / Pct_BlueCollar_O'],
-    'Correlation': [0.757, 0.722, - 0.672, - 0.645, 0.605, - 0.599, - 0.593, - 0.574]
-    }
+    stack_order = stack.sort_values(kind='quicksort')
+    return stack_order
 
-all_scale = {
-     'Variables': ['Pct_Poverty / Pct_SNAP', 'Pct_Unemp / Pct_SNAP', 'Pct_White / Pct_Unemp', 'Pct_White / Pct_SNAP', 'Pct_Unemp / Pct_Poverty', 'Pct_White / Pct_Two_Plus', 'Pct_White / Pct_Poverty', 'Pct_Fire_I / Pct_BlueCollar_O'],
-    'County': [0.757, 0.722, - 0.672, - 0.645, 0.605, - 0.599, - 0.593, - 0.574],
-    'Tract': [0.773, 0.679, -0.474, -0.564, 0.628, -0.296, -0.495, -0.584],
-    'School District': [0.732, 0.590, -0.440, -0.515, 0.494, -0.569, -0.442, -0.380]
-    }
+def main():
+    state = pd.read_spss('/Users/kellenbullock/Desktop/Geographic Analysis II/Data/5303_EX_A.sav')
+    
+    Counties = state.query("Scale == 'Counties'")
+    Schools = state.query("Scale == 'Schools'")
+    Tracts = state.query("Scale == 'Tracts'")
+    
+    
+    assigned_var_c = Counties[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    assigned_var_s = Schools[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    assigned_var_t = Tracts[['Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    
+    assigned_var_t = assigned_var_t.reset_index()
+    assigned_var_s = assigned_var_s.reset_index()
+    assigned_var_s = assigned_var_s.drop(columns=['index'])
+    assigned_var_t = assigned_var_t.drop(columns=['index'])
+    
+    # New Variables 
+    var_c = Counties[['Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    var_s = Schools[['Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    var_t = Tracts[['Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    
+    var_t = var_t.reset_index()
+    var_s = var_s.reset_index()
+    var_t = var_t.drop(columns=['index'])
+    var_s = var_s.drop(columns=['index'])
+    
+    # 1.
+    #EDA.figures(var_c, 'Counties')
+    #EDA.figures(var_t, 'Tracts')
+    #EDA.figures(var_s, 'Schools')
+    
+    print('=====County=======')
+    #EDA.Descrptives(Counties, var_c)
+    print('======== Tracts =========')
+    #EDA.Descrptives(Tracts, var_t)
+    print('====== School Districts =======')
+    #EDA.Descrptives(Schools, var_s)
+    
+    # 1 part b:
+    #test_trans(assigned_var_c, 'Pct_Black')
+    print('************')
+    #test_trans(assigned_var_c, 'Pct_Hispanic')
+    
+    # 2,
+    # This will make a pearson's r correlation matrix at the County scale
+    # These do not work in the spyder IDE. Please see the jupyter notebook for outputs.
+    corr = assigned_var_c.corr()
+    corr.style.background_gradient(cmap='coolwarm').set_precision(3)
+    
+    EDA.df_to_pdf(corr, 'Matrix_1')
+    
+    ''' Easy way to order Correlations but without signs:
+        correlations = assigned_var_c.corr().abs()
+        stack = correlations.unstack()
+        stack_order = s.sort_values(kind='quicksort')
+    '''
+    # 2. a. 8 strongest Person's correaltions. There was no easy way to do this I had to pull everythong by hand.
+    corr_table = {
+        'Variables': ['Pct_Poverty / Pct_SNAP', 'Pct_Unemp / Pct_SNAP', 'Pct_White / Pct_Unemp', 'Pct_White / Pct_SNAP', 'Pct_Unemp / Pct_Poverty', 'Pct_White / Pct_Two_Plus', 'Pct_White / Pct_Poverty', 'Pct_Fire_I / Pct_BlueCollar_O'],
+        'Correlation': [0.757, 0.722, - 0.672, - 0.645, 0.605, - 0.599, - 0.593, - 0.574]
+        }
+    
+    all_scale = {
+         'Variables': ['Pct_Poverty / Pct_SNAP', 'Pct_Unemp / Pct_SNAP', 'Pct_White / Pct_Unemp', 'Pct_White / Pct_SNAP', 'Pct_Unemp / Pct_Poverty', 'Pct_White / Pct_Two_Plus', 'Pct_White / Pct_Poverty', 'Pct_Fire_I / Pct_BlueCollar_O'],
+        'County': [0.757, 0.722, - 0.672, - 0.645, 0.605, - 0.599, - 0.593, - 0.574],
+        'Tract': [0.773, 0.679, -0.474, -0.564, 0.628, -0.296, -0.495, -0.584],
+        'School District': [0.732, 0.590, -0.440, -0.515, 0.494, -0.569, -0.442, -0.380]
+        }
+    
+    pearson_r_table = pd.DataFrame(corr_table)
+    pearson_r_table.to_excel('County Correlation.xlsx')
+    EDA.df_to_pdf(pearson_r_table, 'Decending_corr')
+    
+    all_scale = pd.DataFrame(all_scale)
+    all_scale.to_excel('Scale_Correlation.xlsx')
+    EDA.df_to_pdf(all_scale, 'Scale_Correlation')
+    
+    # 3. 
+    assigned_c_repub = Counties[['Pct_Repub', 'Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
+    
+    assigned_c_repub = assigned_c_repub.reset_index()
+    assigned_c_repub = assigned_c_repub.drop(columns=['index'])
+    assigned_c_repub['Pct_Black'] = Transformations.log_trans(assigned_c_repub, 'Pct_Black')
+    assigned_c_repub['Pct_Hispanic'] = Transformations.log_trans(assigned_c_repub, 'Pct_Hispanic')
+    
+    corr2 = assigned_c_repub.corr()
+    corr2.style.background_gradient(cmap='coolwarm').set_precision(3)
+    EDA.df_to_pdf(corr2, 'Matrix_2')
+    
+    # c.
+    chosen = corr2[['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP']]
+    x = ['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP']
+    y = 'Pct_Repub'
+    corr_scatter(chosen, x, y)
+    
+    # c. 4 scatter plots with y axis being pct_republican
+    
+    chosen = assigned_c_repub[['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP']]
+    # Running partial correlation 4 times:
+    Partial_Corr.partial_corr(chosen[['Pct_Repub', 'Pct_Poverty']])
+    Partial_Corr.partial_corr(chosen[['Pct_Repub', 'Pct_White']])
+    Partial_Corr.partial_corr(chosen[['Pct_Repub', 'Pct_SNAP']])
+    Partial_Corr.partial_corr(chosen[['Pct_Repub', 'Pct_Unemp']])
+    
+    
+    # 5.
+    bivar_regres(chosen['Pct_Repub'], chosen['Pct_Poverty']) # Model 1
+    bivar_regres(chosen['Pct_Repub'], chosen['Pct_SNAP'])    # Model 2
+    bivar_regres(chosen['Pct_Repub'], chosen['Pct_White'])   # Model 3
+    bivar_regres(chosen['Pct_Repub'], chosen['Pct_Unemp'])   # Model 4
+    
+    #EDA.merge_pdfs()
 
-pearson_r_table = pd.DataFrame(corr_table)
-pearson_r_table.to_excel('County Correlation.xlsx')
-EDA.df_to_pdf(pearson_r_table, 'Decending_corr')
 
-all_scale = pd.DataFrame(all_scale)
-all_scale.to_excel('Scale_Correlation.xlsx')
-EDA.df_to_pdf(all_scale, 'Scale_Correlation')
-
-# 3. 
-assigned_c_repub = Counties[['Pct_Repub', 'Pct_Black', 'Pct_Two_Plus', 'Pct_SNAP', 'Pct_FIRE_I', 'Pct_Poverty', 'Pct_Unemp', 'Med_HomeValue', 'Pct_White', 'Pct_BlueCollar_O', 'Pct_Hispanic']]
-
-assigned_c_repub = assigned_c_repub.reset_index()
-assigned_c_repub = assigned_c_repub.drop(columns=['index'])
-assigned_c_repub['Pct_Black'] = Transformations.log_trans(assigned_c_repub, 'Pct_Black')
-assigned_c_repub['Pct_Hispanic'] = Transformations.log_trans(assigned_c_repub, 'Pct_Hispanic')
-
-corr2 = assigned_c_repub.corr()
-corr2.style.background_gradient(cmap='coolwarm').set_precision(3)
-EDA.df_to_pdf(corr2, 'Matrix_2')
-
-# c.
-chosen = corr2[['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP']]
-x = ['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP']
-y = 'Pct_Repub'
-corr_scatter(chosen, x, y)
-
-# c. 4 scatter plots with y axis being pct_republican
-
-chosen = assigned_c_repub[['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP']]
-corr3 = Partial_Corr.partial_corr(chosen)
-corr3 = pd.DataFrame(corr3, index=['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP'], columns=['Pct_Repub', 'Pct_Poverty', 'Pct_Unemp', 'Pct_White', 'Pct_SNAP'])
-
-EDA.df_to_pdf(corr3, 'Matrix3')
-
-# 5.
-bivar_regres(chosen['Pct_Repub'], chosen['Pct_Poverty']) # Model 1
-bivar_regres(chosen['Pct_Repub'], chosen['Pct_SNAP'])    # Model 2
-bivar_regres(chosen['Pct_Repub'], chosen['Pct_White'])   # Model 3
-bivar_regres(chosen['Pct_Repub'], chosen['Pct_Unemp'])   # Model 4
-
-#EDA.merge_pdfs()
-
-# if __name__ == '__main__':
-#    main()
+if __name__ == '__main__':
+   main()
