@@ -21,6 +21,8 @@ To activate the enviroment please run either:
 If you are on Mac or Linux: 
         
         source activate tensorflow
+Windows:
+	conda activate tensorflow
 
 
 # Usage:
