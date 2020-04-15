@@ -1,27 +1,29 @@
 # Welcome!
 
-This repo is designed to provide python tools to conquer the Graduate level class Geographic Analysis.
+This repo is designed for the Graduate level class Geographic Analysis at Oklahoma State University.
 
 # Setup:
 
-The anaconda distirbution is how I am controlling the enviroment the code runs in.
-If you have not doneso already please install anaconda on your device at:
+Anaconda will control the programming enviroment. To download:
 
     https://www.anaconda.com/distribution/
     
 Once installed please navigate to the dirctory that environment.yml is located.
 Run the command:
-        conda env create -f environment.yml
+
+	conda env create -f environment.yml
         
 The enviroment will called tensorflow.
     
 To activate the enviroment please run either:
-        conda activate tensorflow
+        
+	conda activate tensorflow
         
 If you are on Mac or Linux: 
         
         source activate tensorflow
 Windows:
+	
 	conda activate tensorflow
 
 
@@ -42,6 +44,7 @@ To run spyder, open an anaconda prompt if you are using windows or a terminal
 if you are on Mac or Linux.
 
 Run these commands:
+
 	source activate tensorflow
 
 	spyder
